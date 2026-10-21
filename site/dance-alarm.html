@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f0e8" />
+    <title>起床闹钟</title>
+    <style>
+:root {
+  color-scheme: light;
+  --ink: #20201f;
+  --muted: #756f67;
+  --paper: #f6f0e8;
+  --card: rgba(255, 255, 255, 0.72);
+  --line: rgba(32, 32, 31, 0.12);
+  --accent: #ff5b3e;
+  --lime: #d9f34a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 14% 8%, rgba(217, 243, 74, 0.65), transparent 28rem),
+    radial-gradient(circle at 90% 65%, rgba(255, 91, 62, 0.2), transparent 30rem),
+    var(--paper);
+}
+
+button, input { font: inherit; }
+
+.app-shell {
+  width: min(100% - 32px, 520px);
+  margin: 0 auto;
+  padding: 36px 0 60px;
+}
+
+.topbar, .section-heading, .challenge-row {
+  display: flex;
+  align-items: center;
+}
+
+.topbar { justify-content: space-between; margin-bottom: 24px; }
+.eyebrow, .label { margin: 0 0 5px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .14em; }
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 0; font-size: 28px; letter-spacing: -.04em; }
+h2 { margin-bottom: 0; font-size: 20px; letter-spacing: -.02em; }
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  background: #46b96b;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.12);
+}
+
+.clock-card, .alarm-card {
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  background: var(--card);
+  box-shadow: 0 22px 60px rgba(74, 59, 40, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.clock-card { padding: 30px; margin-bottom: 18px; }
+.date { color: var(--muted); margin-bottom: 10px; }
+.current-time { font-size: clamp(70px, 20vw, 104px); font-weight: 800; line-height: .92; letter-spacing: -.085em; }
+.clock-caption { margin: 18px 0 0; color: var(--muted); }
+.alarm-card { padding: 26px; }
+.section-heading { justify-content: space-between; margin-bottom: 25px; }
+
+.time-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 17px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.time-field input {
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  font-size: 25px;
+  font-weight: 750;
+  outline: none;
+}
+
+.challenge-row { gap: 14px; padding: 20px 0 25px; }
+.challenge-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; background: var(--lime); font-size: 24px; font-weight: 900; transform: rotate(-4deg); }
+.challenge-row strong { display: block; margin-bottom: 3px; }
+.challenge-row p { margin: 0; color: var(--muted); font-size: 13px; }
+.duration { margin-left: auto; font-weight: 750; }
+
+.music-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 22px; padding: 17px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.music-row strong { display: block; margin-bottom: 4px; }
+.music-row p { max-width: 220px; margin: 0; overflow: hidden; color: var(--muted); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.upload-button { flex: 0 0 auto; padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.5); font-size: 13px; font-weight: 750; cursor: pointer; }
+
+.primary-button, .secondary-button {
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .16s ease, opacity .16s ease;
+}
+
+.primary-button { border: 0; color: white; background: var(--ink); }
+.secondary-button { margin-top: 10px; border: 1px solid var(--line); color: var(--ink); background: transparent; }
+.primary-button:hover, .secondary-button:hover { transform: translateY(-2px); }
+.primary-button:active, .secondary-button:active { transform: translateY(0); }
+.message { min-height: 20px; margin: 14px 0 0; text-align: center; color: var(--muted); font-size: 13px; }
+
+.switch { position: relative; width: 50px; height: 30px; }
+.switch input { width: 0; height: 0; opacity: 0; }
+.slider { position: absolute; inset: 0; border-radius: 30px; background: #d4cec6; cursor: pointer; transition: .2s; }
+.slider::before { content: ""; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; border-radius: 50%; background: white; box-shadow: 0 2px 7px rgba(0,0,0,.2); transition: .2s; }
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+.ring-screen {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  color: white;
+  background: #111;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+
+.ring-screen.visible { visibility: visible; opacity: 1; }
+.ring-glow { display: none; }
+.ring-content { position: relative; width: 100%; height: 100%; text-align: center; }
+.ring-kicker { position: absolute; z-index: 4; top: 24px; left: 26px; margin: 0; padding: 9px 12px; border-radius: 99px; background: rgba(0,0,0,.45); font-size: 12px; font-weight: 900; letter-spacing: .14em; backdrop-filter: blur(9px); }
+.stop-preview { position: absolute; z-index: 4; right: 26px; bottom: 24px; width: auto; min-width: 230px; margin: 0; padding: 16px 24px; border: 1px solid rgba(255,255,255,.32); border-radius: 18px; color: white; background: rgba(15,15,15,.72); font-weight: 800; cursor: pointer; backdrop-filter: blur(12px); transition: opacity .2s, transform .2s; }
+.stop-preview:disabled { cursor: not-allowed; opacity: .35; }
+.stop-preview:not(:disabled):hover { transform: translateY(-2px); }
+
+.camera-stage { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; overflow: hidden; background: #20201f; }
+.camera-stage video, .camera-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.camera-stage canvas { z-index: 2; }
+.camera-placeholder { position: absolute; z-index: 3; inset: 0; display: grid; place-items: center; padding: 20px; color: white; background: #20201f; font-weight: 700; }
+.camera-placeholder.hidden { display: none; }
+.challenge-status { position: absolute; z-index: 4; left: 26px; bottom: 24px; display: flex; align-items: center; gap: 12px; max-width: calc(100% - 310px); padding: 11px 14px; border-radius: 16px; background: rgba(0,0,0,.5); font-size: 13px; text-align: left; backdrop-filter: blur(10px); }
+.motion-badge { flex: 0 0 auto; padding: 8px 11px; border-radius: 999px; color: white; background: rgba(255,255,255,.16); font-size: 12px; font-weight: 800; }
+.motion-badge.active { color: var(--ink); background: var(--lime); }
+
+.countdown-ring { position: absolute; z-index: 4; top: 22px; left: 50%; width: 170px; height: 170px; transform: translateX(-50%); filter: drop-shadow(0 5px 12px rgba(0,0,0,.35)); }
+.countdown-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.countdown-ring circle { fill: rgba(0,0,0,.18); stroke-width: 8; }
+.ring-base { stroke: rgba(255,255,255,.3); }
+.ring-progress { stroke: #31de72; stroke-linecap: round; stroke-dasharray: 326.73; stroke-dashoffset: 0; transition: stroke-dashoffset .18s linear; }
+.countdown-copy { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; text-shadow: 0 2px 8px rgba(0,0,0,.45); }
+.countdown-copy strong { font-size: 64px; line-height: .9; }
+.countdown-copy span { margin-top: 9px; font-size: 14px; font-weight: 700; }
+
+@media (max-width: 420px) {
+  .app-shell { width: min(100% - 22px, 520px); padding-top: 22px; }
+  .clock-card, .alarm-card { border-radius: 24px; }
+  .clock-card { padding: 24px; }
+  .alarm-card { padding: 22px; }
+  .ring-kicker { top: 14px; left: 14px; }
+  .countdown-ring { top: 70px; width: 145px; height: 145px; }
+  .challenge-status { right: 14px; bottom: 82px; left: 14px; max-width: none; }
+  .stop-preview { right: 14px; bottom: 14px; left: 14px; width: calc(100% - 28px); }
+}
+
+</style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">DANCE TO WAKE</p>
+          <h1>起床闹钟</h1>
+        </div>
+        <div class="status-dot" aria-label="应用已就绪"></div>
+      </header>
+
+      <section class="clock-card">
+        <p id="today" class="date">今天</p>
+        <div id="currentTime" class="current-time">--:--</div>
+        <p class="clock-caption">早起的第一分钟，交给身体。</p>
+      </section>
+
+      <section class="alarm-card">
+        <div class="section-heading">
+          <div>
+            <p class="label">下一个闹钟</p>
+            <h2>设置唤醒时间</h2>
+          </div>
+          <label class="switch">
+            <input id="alarmEnabled" type="checkbox" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <label class="time-field" for="alarmTime">
+          <span>响铃时间</span>
+          <input id="alarmTime" type="time" value="07:30" />
+        </label>
+
+        <div class="challenge-row">
+          <div class="challenge-icon">♪</div>
+          <div>
+            <strong>跳舞挑战</strong>
+            <p>有效运动 60 秒后才可关闭</p>
+          </div>
+          <span class="duration">60 秒</span>
+        </div>
+
+        <div class="music-row">
+          <div>
+            <strong>起床舞曲</strong>
+            <p id="musicName">内置魔性电子舞曲</p>
+          </div>
+          <label class="upload-button" for="musicFile">选择 MP3</label>
+          <input id="musicFile" type="file" accept="audio/*" hidden />
+        </div>
+
+        <button id="saveAlarm" class="primary-button" type="button">保存闹钟</button>
+        <button id="testAlarm" class="secondary-button" type="button">立即体验响铃</button>
+        <p id="message" class="message" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <section id="ringScreen" class="ring-screen" aria-hidden="true">
+      <div class="ring-glow"></div>
+      <div class="ring-content">
+        <p class="ring-kicker">WAKE UP · 起床啦</p>
+        <div class="countdown-ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-base" cx="60" cy="60" r="52"></circle>
+            <circle id="ringProgress" class="ring-progress" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="countdown-copy">
+            <strong id="secondsLeft">60</strong>
+            <span>秒剩余</span>
+          </div>
+        </div>
+        <div class="camera-stage">
+          <video id="camera" autoplay muted playsinline></video>
+          <canvas id="poseCanvas"></canvas>
+          <div id="cameraPlaceholder" class="camera-placeholder">正在加载人体识别…</div>
+        </div>
+        <div class="challenge-status">
+          <div id="motionBadge" class="motion-badge">准备检测</div>
+          <span id="motionStatus">请后退，让全身进入画面</span>
+        </div>
+        <button id="previewStop" class="stop-preview" type="button" disabled>跳满 60 秒后关闭</button>
+      </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js"></script>
+    <script>
+const currentTime = document.querySelector("#currentTime");
+const today = document.querySelector("#today");
+const saveButton = document.querySelector("#saveAlarm");
+const testButton = document.querySelector("#testAlarm");
+const alarmTime = document.querySelector("#alarmTime");
+const alarmEnabled = document.querySelector("#alarmEnabled");
+const message = document.querySelector("#message");
+const ringScreen = document.querySelector("#ringScreen");
+const previewStop = document.querySelector("#previewStop");
+const musicFile = document.querySelector("#musicFile");
+const musicName = document.querySelector("#musicName");
+const camera = document.querySelector("#camera");
+const poseCanvas = document.querySelector("#poseCanvas");
+const cameraPlaceholder = document.querySelector("#cameraPlaceholder");
+const motionBadge = document.querySelector("#motionBadge");
+const motionStatus = document.querySelector("#motionStatus");
+const secondsLeft = document.querySelector("#secondsLeft");
+const ringProgress = document.querySelector("#ringProgress");
+
+let audioContext;
+let ringTimer;
+let lastTriggeredMinute = "";
+let uploadedAudio;
+let uploadedAudioUrl;
+let beatStep = 0;
+let cameraStream;
+let motionFrame;
+let poseDetector;
+let previousLandmarks;
+let activeDanceMs = 0;
+let lastFrameTime = 0;
+let lastMovementTime = 0;
+let challengeComplete = false;
+const challengeDurationMs = 60_000;
+const ringCircumference = 2 * Math.PI * 52;
+const trackedJoints = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
+const skeletonConnections = [
+  [11, 12], [11, 13], [13, 15], [12, 14], [14, 16],
+  [11, 23], [12, 24], [23, 24], [23, 25], [25, 27],
+  [27, 29], [29, 31], [24, 26], [26, 28], [28, 30], [30, 32],
+];
+
+function tone(frequency, duration, volume = 0.13, type = "square") {
+  audioContext ??= new (window.AudioContext || window.webkitAudioContext)();
+  const now = audioContext.currentTime;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, now);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  oscillator.connect(gain).connect(audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + duration + 0.02);
+}
+
+function playDanceBeat() {
+  const melody = [330, 392, 440, 392, 523, 440, 392, 294];
+  tone(melody[beatStep % melody.length], 0.18, 0.075, "square");
+  if (beatStep % 2 === 0) tone(82, 0.13, 0.22, "sine");
+  if (beatStep % 4 === 2) tone(165, 0.06, 0.08, "sawtooth");
+  beatStep += 1;
+}
+
+async function startCameraChallenge() {
+  stopCameraChallenge();
+  activeDanceMs = 0;
+  previousLandmarks = null;
+  lastFrameTime = performance.now();
+  lastMovementTime = 0;
+  challengeComplete = false;
+  previewStop.disabled = true;
+  previewStop.textContent = "跳满 60 秒后关闭";
+  ringProgress.style.strokeDashoffset = "0";
+  secondsLeft.textContent = "60";
+  motionStatus.textContent = "请后退，让全身进入画面";
+  motionBadge.textContent = "准备检测";
+  motionBadge.classList.remove("active");
+  cameraPlaceholder.classList.remove("hidden");
+    cameraPlaceholder.textContent = "正在加载人体识别…";
+
+  try {
+    if (!window.Pose) throw new Error("人体识别组件加载失败，请检查网络后刷新");
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false,
+    });
+    camera.srcObject = cameraStream;
+    await camera.play();
+    poseCanvas.width = camera.videoWidth;
+    poseCanvas.height = camera.videoHeight;
+    cameraPlaceholder.classList.add("hidden");
+    motionStatus.textContent = "摄像头已开启，正在载入骨架识别…";
+    if (!poseDetector) {
+      poseDetector = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`,
+      });
+      poseDetector.setOptions({
+        modelComplexity: 0,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        minDetectionConfidence: 0.45,
+        minTrackingConfidence: 0.45,
+      });
+      poseDetector.onResults(handlePoseResults);
+    }
+    motionFrame = requestAnimationFrame(detectPoseFrame);
+  } catch (error) {
+    cameraPlaceholder.textContent = error.message || "无法使用摄像头，请允许权限后重试";
+    motionStatus.textContent = "需要摄像头权限才能完成挑战";
+    motionBadge.textContent = "未获得权限";
+  }
+}
+
+async function detectPoseFrame() {
+  if (!cameraStream || challengeComplete) return;
+  try {
+    await poseDetector.send({ image: camera });
+  } catch (error) {
+    motionBadge.textContent = "识别加载失败";
+    motionStatus.textContent = "摄像头正常，但骨架模型加载失败，请刷新重试";
+    return;
+  }
+  motionFrame = requestAnimationFrame(detectPoseFrame);
+}
+
+function drawSkeleton(landmarks) {
+  const context = poseCanvas.getContext("2d");
+  context.clearRect(0, 0, poseCanvas.width, poseCanvas.height);
+  context.lineCap = "round";
+  context.lineJoin = "round";
+  context.lineWidth = Math.max(5, poseCanvas.width / 130);
+  context.strokeStyle = "white";
+  context.shadowColor = "rgba(0,0,0,.45)";
+  context.shadowBlur = 7;
+
+  for (const [from, to] of skeletonConnections) {
+    const a = landmarks[from];
+    const b = landmarks[to];
+    if ((a.visibility ?? 1) < 0.45 || (b.visibility ?? 1) < 0.45) continue;
+    context.beginPath();
+    context.moveTo(a.x * poseCanvas.width, a.y * poseCanvas.height);
+    context.lineTo(b.x * poseCanvas.width, b.y * poseCanvas.height);
+    context.stroke();
+  }
+}
+
+function handlePoseResults(results) {
+  const now = performance.now();
+  const elapsed = Math.min(now - lastFrameTime, 250);
+  lastFrameTime = now;
+  const landmarks = results.poseLandmarks;
+
+  if (!landmarks) {
+    poseCanvas.getContext("2d").clearRect(0, 0, poseCanvas.width, poseCanvas.height);
+    motionBadge.textContent = "未发现人体";
+    motionBadge.classList.remove("active");
+    motionStatus.textContent = "请后退，让头、手和腿进入画面";
+    previousLandmarks = null;
+    return;
+  }
+
+  cameraPlaceholder.classList.add("hidden");
+  drawSkeleton(landmarks);
+  const visibleJoints = trackedJoints.filter((index) => (landmarks[index].visibility ?? 1) > 0.45);
+  let movementScore = 0;
+  if (previousLandmarks && visibleJoints.length >= 6) {
+    for (const index of visibleJoints) {
+      const dx = landmarks[index].x - previousLandmarks[index].x;
+      const dy = landmarks[index].y - previousLandmarks[index].y;
+      movementScore += Math.hypot(dx, dy);
+    }
+    movementScore /= visibleJoints.length;
+    if (movementScore > 0.0022) lastMovementTime = now;
+  }
+  previousLandmarks = landmarks.map((point) => ({ ...point }));
+
+  const enoughBodyVisible = visibleJoints.length >= 8;
+  const isMoving = enoughBodyVisible && now - lastMovementTime < 550;
+  if (isMoving && !challengeComplete) {
+    activeDanceMs = Math.min(challengeDurationMs, activeDanceMs + elapsed);
+  }
+
+  const progress = activeDanceMs / challengeDurationMs;
+  ringProgress.style.strokeDashoffset = `${ringCircumference * progress}`;
+  secondsLeft.textContent = `${Math.ceil((challengeDurationMs - activeDanceMs) / 1000)}`;
+  motionBadge.textContent = isMoving ? "正在跳舞" : enoughBodyVisible ? "计时暂停" : "请露出全身";
+  motionBadge.classList.toggle("active", isMoving);
+  motionStatus.textContent = isMoving ? `已累计 ${Math.floor(activeDanceMs / 1000)} 秒` : "挥动手臂并带动身体";
+
+  if (activeDanceMs >= challengeDurationMs) {
+    challengeComplete = true;
+    previewStop.disabled = false;
+    previewStop.textContent = "完成！关闭闹钟";
+    secondsLeft.textContent = "✓";
+    motionStatus.textContent = "你醒了，今天也要元气满满";
+    motionBadge.textContent = "挑战成功";
+    motionBadge.classList.add("active");
+  }
+}
+
+function stopCameraChallenge() {
+  if (motionFrame) cancelAnimationFrame(motionFrame);
+  motionFrame = null;
+  if (cameraStream) cameraStream.getTracks().forEach((track) => track.stop());
+  cameraStream = null;
+  camera.srcObject = null;
+}
+
+function startAlarm() {
+  ringScreen.classList.add("visible");
+  ringScreen.setAttribute("aria-hidden", "false");
+  clearInterval(ringTimer);
+  if (uploadedAudio) {
+    uploadedAudio.currentTime = 0;
+    uploadedAudio.loop = true;
+    uploadedAudio.play();
+  } else {
+    beatStep = 0;
+    playDanceBeat();
+    ringTimer = setInterval(playDanceBeat, 230);
+  }
+  startCameraChallenge();
+}
+
+function stopAlarm() {
+  if (!challengeComplete) return;
+  clearInterval(ringTimer);
+  if (uploadedAudio) {
+    uploadedAudio.pause();
+    uploadedAudio.currentTime = 0;
+  }
+  ringScreen.classList.remove("visible");
+  ringScreen.setAttribute("aria-hidden", "true");
+  stopCameraChallenge();
+}
+
+function updateClock() {
+  const now = new Date();
+  currentTime.textContent = now.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  today.textContent = now.toLocaleDateString("zh-CN", {
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  });
+
+  const minuteKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}-${now.getMinutes()}`;
+  const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  if (alarmEnabled.checked && alarmTime.value === hhmm && lastTriggeredMinute !== minuteKey) {
+    lastTriggeredMinute = minuteKey;
+    startAlarm();
+  }
+}
+
+saveButton.addEventListener("click", () => {
+  if (!alarmEnabled.checked) {
+    message.textContent = "请先打开闹钟开关";
+    return;
+  }
+  message.textContent = `闹钟已设置为 ${alarmTime.value}`;
+});
+
+testButton.addEventListener("click", () => {
+  startAlarm();
+});
+
+previewStop.addEventListener("click", stopAlarm);
+
+musicFile.addEventListener("change", () => {
+  const file = musicFile.files[0];
+  if (!file) return;
+  if (uploadedAudioUrl) URL.revokeObjectURL(uploadedAudioUrl);
+  uploadedAudioUrl = URL.createObjectURL(file);
+  uploadedAudio = new Audio(uploadedAudioUrl);
+  musicName.textContent = file.name;
+  message.textContent = "舞曲已载入，点击“立即体验响铃”试听";
+});
+
+updateClock();
+setInterval(updateClock, 1000);
+
+</script>
+  </body>
+</html>

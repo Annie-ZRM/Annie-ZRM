@@ -5,17 +5,17 @@
     <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="420" gradientUnits="userSpaceOnUse">
       <stop stop-color="#090B18"/>
       <stop offset="0.5" stop-color="#18112D"/>
-      <stop offset="1" stop-color="#0B1726"/>
+      <stop offset="1" stop-color="#171033"/>
     </linearGradient>
     <linearGradient id="aurora" x1="120" y1="80" x2="1080" y2="350" gradientUnits="userSpaceOnUse">
       <stop stop-color="#7C5CFF"/>
-      <stop offset="0.48" stop-color="#EC6A9E"/>
-      <stop offset="1" stop-color="#43D9AD"/>
+      <stop offset="0.48" stop-color="#D946EF"/>
+      <stop offset="1" stop-color="#C084FC"/>
     </linearGradient>
     <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
       <stop stop-color="#7C5CFF" stop-opacity="0"/>
       <stop offset="0.5" stop-color="#B8A7FF"/>
-      <stop offset="1" stop-color="#43D9AD" stop-opacity="0"/>
+      <stop offset="1" stop-color="#C084FC" stop-opacity="0"/>
     </linearGradient>
     <radialGradient id="glow">
       <stop stop-color="#A78BFA" stop-opacity=".48"/>
@@ -52,16 +52,16 @@
   <rect width="1200" height="420" rx="30" fill="url(#bg)"/>
   <rect width="1200" height="420" rx="30" fill="url(#grid)"/>
   <ellipse cx="965" cy="205" rx="285" ry="235" fill="url(#glow)" filter="url(#blur)" class="pulse"/>
-  <ellipse cx="110" cy="430" rx="260" ry="120" fill="#EC6A9E" fill-opacity=".12" filter="url(#blur)"/>
+  <ellipse cx="110" cy="430" rx="260" ry="120" fill="#D946EF" fill-opacity=".16" filter="url(#blur)"/>
 
   <g opacity=".72">
     <circle class="star" cx="77" cy="75" r="2.5" fill="#fff" style="animation-delay:-1s"/>
     <circle class="star" cx="185" cy="42" r="1.8" fill="#B8A7FF" style="animation-delay:-2s"/>
-    <circle class="star" cx="340" cy="84" r="2" fill="#43D9AD" style="animation-delay:-.4s"/>
+    <circle class="star" cx="340" cy="84" r="2" fill="#C084FC" style="animation-delay:-.4s"/>
     <circle class="star" cx="520" cy="41" r="1.8" fill="#fff" style="animation-delay:-2.6s"/>
-    <circle class="star" cx="649" cy="99" r="2.4" fill="#EC6A9E" style="animation-delay:-1.4s"/>
+    <circle class="star" cx="649" cy="99" r="2.4" fill="#D946EF" style="animation-delay:-1.4s"/>
     <circle class="star" cx="731" cy="44" r="1.5" fill="#fff" style="animation-delay:-.8s"/>
-    <circle class="star" cx="1125" cy="80" r="2.4" fill="#43D9AD" style="animation-delay:-2.2s"/>
+    <circle class="star" cx="1125" cy="80" r="2.4" fill="#E879F9" style="animation-delay:-2.2s"/>
     <circle class="star" cx="1065" cy="340" r="2" fill="#fff" style="animation-delay:-1.7s"/>
     <circle class="star" cx="778" cy="366" r="1.6" fill="#B8A7FF" style="animation-delay:-.3s"/>
     <circle class="star" cx="565" cy="350" r="2" fill="#fff" style="animation-delay:-2.8s"/>
@@ -81,23 +81,23 @@
   <g transform="translate(78 101)">
     <g class="float">
       <rect width="160" height="30" rx="15" fill="#7C5CFF" fill-opacity=".13" stroke="#A994FF" stroke-opacity=".46"/>
-      <circle cx="17" cy="15" r="4" fill="#43D9AD"><animate attributeName="opacity" values=".35;1;.35" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="17" cy="15" r="4" fill="#C084FC"><animate attributeName="opacity" values=".35;1;.35" dur="2s" repeatCount="indefinite"/></circle>
       <text x="31" y="20" fill="#DCD5FF" font-family="Inter,Segoe UI,sans-serif" font-size="11" font-weight="700" letter-spacing="2">HELLO, WORLD</text>
     </g>
     <text x="0" y="101" fill="#FFFFFF" font-family="Inter,Segoe UI,sans-serif" font-size="68" font-weight="760" letter-spacing="-2" filter="url(#textGlow)">I'm Annie.</text>
     <g transform="translate(0 120)" clip-path="url(#reveal)">
       <text x="0" y="42" fill="url(#aurora)" font-family="Inter,Segoe UI,sans-serif" font-size="29" font-weight="650" letter-spacing=".5">I research. I design. I build.</text>
     </g>
-    <text x="0" y="211" fill="#AEB2CA" font-family="Inter,Segoe UI,sans-serif" font-size="16" letter-spacing="2.3">FINANCE  ×  AI  ×  PRODUCT  ×  PEOPLE</text>
+    <text x="0" y="211" fill="#D8D0F0" font-family="Inter,Segoe UI,sans-serif" font-size="16" letter-spacing="2.3">FINANCE  ×  DATA  ×  AI  ×  PEOPLE</text>
     <rect y="242" width="84" height="3" rx="1.5" fill="url(#aurora)"/>
   </g>
 
   <g>
     <circle cx="1000" cy="210" r="115" stroke="#A994FF" stroke-opacity=".18"/>
-    <circle cx="1000" cy="210" r="82" stroke="#43D9AD" stroke-opacity=".16" stroke-dasharray="5 10" class="dash"/>
+    <circle cx="1000" cy="210" r="82" stroke="#C084FC" stroke-opacity=".22" stroke-dasharray="5 10" class="dash"/>
     <g class="orbit">
-      <circle cx="1000" cy="95" r="7" fill="#EC6A9E" filter="url(#soft)"/>
-      <circle cx="1000" cy="95" r="3.2" fill="#FFD5E5"/>
+      <circle cx="1000" cy="95" r="7" fill="#D946EF" filter="url(#soft)"/>
+      <circle cx="1000" cy="95" r="3.2" fill="#F5D0FE"/>
     </g>
     <g class="float2">
       <circle cx="1000" cy="210" r="61" fill="#111426" stroke="url(#aurora)" stroke-width="2"/>
@@ -109,11 +109,11 @@
       <text x="47" y="20" fill="#CFC5FF" text-anchor="middle" font-family="Inter,Segoe UI,sans-serif" font-size="10" font-weight="700" letter-spacing="1.6">RESEARCH</text>
     </g>
     <g class="float2" transform="translate(1054 292)">
-      <rect width="78" height="30" rx="15" fill="#121628" stroke="#43D9AD" stroke-opacity=".5"/>
-      <text x="39" y="20" fill="#A7F3D0" text-anchor="middle" font-family="Inter,Segoe UI,sans-serif" font-size="10" font-weight="700" letter-spacing="1.6">CREATE</text>
+      <rect width="78" height="30" rx="15" fill="#17102D" stroke="#C084FC" stroke-opacity=".64"/>
+      <text x="39" y="20" fill="#E9D5FF" text-anchor="middle" font-family="Inter,Segoe UI,sans-serif" font-size="10" font-weight="700" letter-spacing="1.6">CREATE</text>
     </g>
-    <circle cx="866" cy="286" r="5" fill="#43D9AD" class="pulse"/>
-    <circle cx="1124" cy="151" r="4" fill="#FFD166" class="pulse" style="animation-delay:-1.8s"/>
+    <circle cx="866" cy="286" r="5" fill="#C084FC" class="pulse"/>
+    <circle cx="1124" cy="151" r="4" fill="#DDD6FE" class="pulse" style="animation-delay:-1.8s"/>
   </g>
 
   <rect x="1" y="1" width="1198" height="418" rx="29" stroke="url(#aurora)" stroke-opacity=".22" stroke-width="2"/>

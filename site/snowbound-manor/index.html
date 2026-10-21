@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071017">
+  <meta name="description" content="《雪夜庄园：第十三封信》原创互动推理解谜原型">
+  <title>雪夜庄园：第十三封信</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="game" class="game" aria-label="雪夜庄园互动推理游戏">
+    <div class="room" id="room" aria-hidden="true">
+      <div class="room-image" id="roomImage"></div>
+      <div class="snow" id="snow"></div>
+      <div class="light-sweep"></div>
+
+      <button class="hotspot hotspot-terminal" data-action="terminal" aria-label="查看打字机终端">
+        <span class="hotspot-ring"></span><span class="hotspot-label">案件终端</span>
+      </button>
+      <button class="hotspot hotspot-files" data-action="files" aria-label="查看散落的案卷">
+        <span class="hotspot-ring"></span><span class="hotspot-label">封存案卷</span>
+      </button>
+      <button class="hotspot hotspot-map" data-action="map" aria-label="查看庄园模型">
+        <span class="hotspot-ring"></span><span class="hotspot-label">庄园地图</span>
+      </button>
+      <button class="hotspot hotspot-phone" data-action="phone" aria-label="接听电话">
+        <span class="hotspot-ring"></span><span class="hotspot-label">电话</span>
+      </button>
+    </div>
+
+    <header class="hud" aria-label="调查状态">
+      <div class="brand">
+        <span class="brand-kicker">CASE 01</span>
+        <strong>第十三封信</strong>
+      </div>
+      <div class="status">
+        <span><i class="icon-calendar"></i>暴雪封锁 <b id="daysLeft">7</b> 日</span>
+        <span><i class="icon-eye"></i>行动点 <b id="actionPoints">5</b></span>
+        <span><i class="icon-clue"></i>线索 <b id="clueCount">0</b>/7</span>
+      </div>
+      <div class="hud-actions">
+        <button class="icon-button" id="soundToggle" aria-label="开启声音" title="声音">◐</button>
+        <button class="icon-button" id="audioSettingsButton" aria-label="声音设置" title="声音设置">♫</button>
+        <button class="icon-button" id="fullscreenToggle" aria-label="全屏" title="全屏">⛶</button>
+      </div>
+    </header>
+
+    <section class="narrator" id="narrator" aria-live="polite">
+      <span class="speaker" id="speaker">调查手记</span>
+      <p id="narratorText">壁炉快要熄灭了。庄园里每个人都在等待你的结论。</p>
+    </section>
+
+    <button class="deduce-button" id="deduceButton" disabled>
+      <span>进行推理</span><small id="deduceHint">还需找到 5 条关键线索</small>
+    </button>
+
+    <section class="overlay intro is-open" id="intro" aria-labelledby="introTitle">
+      <div class="intro-card">
+        <div class="wax-seal">XIII</div>
+        <p class="eyebrow">BLACKTHORN MANOR · 1934</p>
+        <h1 id="introTitle">雪夜庄园<br><em>第十三封信</em></h1>
+        <div class="ornament">◆</div>
+        <p class="intro-copy">阿姆布罗斯爵士死在反锁的书房里。窗外没有足迹，壁炉里却多了一封写给死者的信——署名日期，是明天。</p>
+        <p class="mission">进入庄园的五个区域，与嫌疑人交谈，在午夜钟响前找出凶手。</p>
+        <button class="primary-button" id="startButton">开始调查</button>
+        <button class="secondary-button" id="continueButton" hidden>继续上次调查</button>
+        <small>原创互动推理解谜原型 · 建议开启声音并使用横屏</small>
+      </div>
+    </section>
+
+    <section class="overlay panel-overlay" id="terminalPanel" aria-label="案件终端" aria-hidden="true">
+      <div class="terminal-shell">
+        <div class="terminal-topline"><span>BLACKTHORN COUNTY CONSTABULARY</span><span>TERMINAL 04</span></div>
+        <button class="close-button" data-close aria-label="关闭">×</button>
+        <nav class="terminal-tabs" aria-label="档案分类">
+          <button class="active" data-tab="case">案情</button>
+          <button data-tab="evidence">证据 <span id="evidenceBadge">0</span></button>
+          <button data-tab="characters">人物</button>
+        </nav>
+        <div class="terminal-screen scanlines">
+          <article class="tab-view active" data-view="case">
+            <p class="terminal-id">CASE NO. BTM-1934-13</p>
+            <h2>黑荆棘庄园密室死亡案</h2>
+            <dl class="case-meta"><dt>死者</dt><dd>阿姆布罗斯·维恩爵士，63岁</dd><dt>时间</dt><dd>11月17日，晚10:20—10:45</dd><dt>地点</dt><dd>庄园西翼书房</dd></dl>
+            <p>晚十点四十分，管家霍尔在书房内发现爵士死亡。房门从内反锁，唯一的窗户插销完好。庄园因暴雪与外界隔绝。</p>
+            <blockquote>“凶手并非进入了密室。凶手只是让时间替自己撒了谎。”</blockquote>
+          </article>
+          <article class="tab-view" data-view="evidence">
+            <div class="evidence-layout">
+              <div class="evidence-list" id="evidenceList"></div>
+              <div class="evidence-detail" id="evidenceDetail">
+                <span class="empty-mark">?</span><p>选择一条证据进行检视</p>
+              </div>
+            </div>
+          </article>
+          <article class="tab-view" data-view="characters">
+            <div class="character-grid" id="characterGrid"></div>
+          </article>
+        </div>
+        <div class="terminal-footer"><span>SECURE LINE</span><span>ESC 关闭</span></div>
+      </div>
+    </section>
+
+    <section class="overlay panel-overlay map-overlay" id="mapPanel" aria-label="庄园地图" aria-hidden="true">
+      <div class="map-stage">
+        <img src="assets/manor-map.jpg" alt="暴雪中的黑荆棘庄园地图">
+        <div class="map-shade"></div>
+        <header class="map-header"><p>BLACKTHORN ESTATE</p><h2>调查地点</h2></header>
+        <button class="close-button" data-close aria-label="关闭">×</button>
+        <button class="map-pin pin-boathouse" data-location="boathouse"><i></i><span>湖畔船屋</span></button>
+        <button class="map-pin pin-manor" data-location="manor"><i></i><span>西翼书房</span></button>
+        <button class="map-pin pin-glasshouse" data-location="glasshouse"><i></i><span>温室</span></button>
+        <button class="map-pin pin-gate" data-location="gate"><i></i><span>门房</span></button>
+        <button class="map-pin pin-chapel" data-location="chapel"><i></i><span>家族礼拜堂</span></button>
+        <aside class="location-card" id="locationCard">
+          <p class="eyebrow">选择调查区域</p>
+          <h3>黑荆棘庄园</h3>
+          <p>选择地区后进入独立场景。调查新物证消耗 1 点行动力，对话与重访免费。</p>
+          <button class="primary-button" id="enterLocation" disabled>进入地区</button>
+        </aside>
+      </div>
+    </section>
+
+    <section class="location-scene" id="locationScene" aria-label="调查地点" aria-hidden="true">
+      <div class="location-background" id="locationBackground"></div>
+      <div class="location-atmosphere"></div>
+      <header class="location-hud">
+        <button class="scene-nav" id="backToMap">← 返回地图</button>
+        <div><p id="locationKicker">BLACKTHORN ESTATE</p><h2 id="locationTitle">调查地点</h2></div>
+        <button class="scene-nav" id="backToHub">返回调查室 ↗</button>
+      </header>
+      <div class="scene-hotspots" id="sceneHotspots"></div>
+      <aside class="scene-note" id="sceneNote">
+        <span>地点记录</span><p id="sceneDescription"></p>
+      </aside>
+      <div class="scene-footer"><span>移动光标寻找调查点</span><span id="sceneProgress">0 / 0</span></div>
+    </section>
+
+    <section class="dialogue-layer" id="dialogueLayer" aria-label="人物对话" aria-hidden="true">
+      <div class="dialogue-backdrop"></div>
+      <div class="character-stage" id="characterStage">
+        <img id="dialoguePortrait" src="" alt="">
+        <div class="character-aura"></div>
+      </div>
+      <button class="dialogue-close" id="dialogueClose" aria-label="结束对话">结束交谈 ×</button>
+      <div class="dialogue-ui">
+        <div class="dialogue-nameplate"><strong id="dialogueName"></strong><small id="dialogueRole"></small></div>
+        <p class="dialogue-text" id="dialogueText"></p>
+        <div class="dialogue-choices" id="dialogueChoices"></div>
+        <div class="dialogue-controls">
+          <button id="voiceReplay">◉ 重播语音</button>
+          <button id="dialogueVoiceSettings">♫ 声线设置</button>
+          <button id="dialogueLogButton">≡ 对话记录</button>
+          <button class="dialogue-next" id="dialogueNext">继续 ›</button>
+        </div>
+      </div>
+      <aside class="dialogue-log" id="dialogueLog" aria-hidden="true">
+        <header><strong>对话记录</strong><button id="dialogueLogClose">×</button></header>
+        <div id="dialogueLogContent"></div>
+      </aside>
+    </section>
+
+    <section class="item-inspector" id="itemInspector" aria-label="道具检查" aria-hidden="true">
+      <div class="inspect-backdrop"></div>
+      <header class="inspect-header">
+        <div><p id="inspectTag">物证检查</p><h2 id="inspectTitle">未知道具</h2></div>
+        <button id="inspectClose" aria-label="放下道具">放下道具 ×</button>
+      </header>
+      <div class="inspect-workbench" id="inspectWorkbench">
+        <div class="inspect-image-wrap" id="inspectImageWrap">
+          <div class="inspect-object" id="inspectObject">
+            <img id="inspectImage" src="" alt="">
+            <button class="detail-marker" id="detailMarker" aria-label="调查隐藏细节"><i></i><span>检查细节</span></button>
+          </div>
+        </div>
+      </div>
+      <aside class="inspect-notes">
+        <span>调查员记录</span>
+        <p id="inspectDescription">拖动画面并放大，寻找可疑细节。</p>
+        <strong id="inspectDiscovery" aria-live="polite">尚未发现决定性细节</strong>
+      </aside>
+      <nav class="inspect-tools" aria-label="检查工具">
+        <button id="inspectZoomOut">－ 缩小</button>
+        <button id="inspectZoomIn">＋ 放大</button>
+        <button id="inspectRotate">↻ 转动</button>
+        <button id="inspectReset">复位</button>
+        <small>滚轮缩放 · 拖动观察 · 点击闪烁标记</small>
+      </nav>
+    </section>
+
+    <section class="overlay panel-overlay" id="audioSettingsPanel" aria-label="声音设置" aria-hidden="true">
+      <div class="audio-settings-card">
+        <button class="close-button" data-close aria-label="关闭">×</button>
+        <p class="eyebrow">AUDIO DIRECTION</p>
+        <h2>声音与氛围</h2>
+        <label><span>角色语音</span><select id="voiceMode"><option value="natural">优先自然声线</option><option value="off">关闭合成语音</option></select></label>
+        <label><span>语速</span><input id="voiceRate" type="range" min="0.78" max="1.05" value="0.9" step="0.01"><output id="voiceRateValue">0.90×</output></label>
+        <label><span>配乐</span><select id="musicMode"><option value="gothic">西式哥特微恐</option><option value="ambience">仅风雪环境音</option><option value="off">关闭配乐</option></select></label>
+        <button class="secondary-button" id="voiceTestButton">试听当前角色声线</button>
+        <p class="audio-note">Demo 会优先选择设备上的增强型或自然中文声线；正式版可无缝替换为真人或高质量录音文件。</p>
+      </div>
+    </section>
+
+    <section class="overlay panel-overlay" id="documentPanel" aria-label="案卷" aria-hidden="true">
+      <div class="document">
+        <button class="close-button dark" data-close aria-label="关闭">×</button>
+        <p class="typewritten">BLACKTHORN &amp; CO. / 私人文件</p>
+        <h2>未寄出的第十三封信</h2>
+        <p>亲爱的阿姆布罗斯：</p>
+        <p>你一直相信那座钟，也一直相信替你配药的人。可有些人的手，比钟摆更懂得怎样拨动时间。</p>
+        <p>如果今晚十点半之后你仍然活着，请烧掉这封信。</p>
+        <p class="signature">—— 一个欠你真相的人</p>
+        <div class="document-clue"><b>发现：</b>信纸带有淡淡的药草气味，右下角留着紫色花粉。</div>
+        <button class="primary-button" data-collect="letter">拿起并检查</button>
+      </div>
+    </section>
+
+    <section class="overlay panel-overlay" id="phonePanel" aria-label="电话通话" aria-hidden="true">
+      <div class="call-card">
+        <button class="close-button" data-close aria-label="挂断">×</button>
+        <div class="call-wave"><i></i><i></i><i></i><i></i><i></i></div>
+        <p class="eyebrow">匿名来电 · 线路不稳定</p>
+        <h2>“那只钟……慢了十二分钟。”</h2>
+        <p>“布莱克医生每晚都会替爵士上发条。案发后，他却说自己九点钟就离开了西翼。别相信他给出的死亡时间。”</p>
+        <button class="primary-button" data-collect="call">检查录音装置</button>
+      </div>
+    </section>
+
+    <section class="overlay panel-overlay" id="deductionPanel" aria-label="推理指认" aria-hidden="true">
+      <div class="deduction-board">
+        <button class="close-button" data-close aria-label="关闭">×</button>
+        <p class="eyebrow">FINAL DEDUCTION</p>
+        <h2>谁杀死了阿姆布罗斯爵士？</h2>
+        <p>选择嫌疑人。错误指认将消耗 1 点行动力。</p>
+        <div class="suspect-options">
+          <button data-suspect="evelyn"><img src="assets/characters/evelyn.png" alt=""><b>伊芙琳·维恩</b><small>侄女 · 遗产继承人</small></button>
+          <button data-suspect="hall"><img src="assets/characters/hall.png" alt=""><b>塞缪尔·霍尔</b><small>管家 · 第一发现人</small></button>
+          <button data-suspect="blake"><img src="assets/characters/blake.png" alt=""><b>亚瑟·布莱克</b><small>家庭医生 · 死亡鉴定人</small></button>
+        </div>
+        <div class="logic-line" id="logicLine">线索会说话，但它们从不替你下结论。</div>
+      </div>
+    </section>
+
+    <section class="overlay ending" id="ending" aria-labelledby="endingTitle" aria-hidden="true">
+      <div class="ending-card">
+        <p class="eyebrow">CASE CLOSED</p>
+        <h2 id="endingTitle">午夜前的真相</h2>
+        <p>布莱克医生用毛地黄改变了爵士的心率，再把书房座钟拨慢十二分钟。他利用错误的死亡时间制造不在场证明，却没有发现花粉落在了信纸上。</p>
+        <div class="ending-stamp">案件告破</div>
+        <p class="ending-note">这是第一章原型。完整游戏将继续追查：是谁写下了第十三封信？</p>
+        <button class="primary-button" id="restartButton">重新调查</button>
+      </div>
+    </section>
+
+    <div class="toast" id="toast" role="status"></div>
+    <div class="grain"></div>
+    <div class="vignette"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
